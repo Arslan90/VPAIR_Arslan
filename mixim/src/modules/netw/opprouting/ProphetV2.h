@@ -36,6 +36,7 @@
 #include "NetwControlInfo.h"
 #include "ArpInterface.h"
 #include "SimpleAddress.h"
+#include "Prophet_Enum.h"
 
 typedef std::map<LAddress::L3Type, double>::iterator map_it;
 

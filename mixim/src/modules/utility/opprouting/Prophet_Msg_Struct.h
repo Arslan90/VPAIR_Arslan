@@ -8,12 +8,13 @@
 #ifndef PROPHET_MSG_STRUCT_H_
 #define PROPHET_MSG_STRUCT_H_
 
-#include "Prophet_Msg_Enum.h"
+#include "Prophet_Enum.h"
 #include <iostream>
 #include <bitset>
+#include <list>
 #include "TlvData.h"
 
-using namespace std;
+//using namespace std;
 
 
 typedef struct prophet_header {
@@ -25,7 +26,7 @@ typedef struct prophet_header {
 typedef struct prophet_tlv {
 	unsigned char tlv_Type;
 	std::bitset<8> tlv_Flags;
-	std::list<Tlv_Data> tlv_Data;
+//	std::list<Tlv_Data> tlv_Data;
 };
 
 

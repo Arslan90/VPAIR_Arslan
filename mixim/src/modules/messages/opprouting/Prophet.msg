@@ -15,14 +15,24 @@
 
 cplusplus {{
 #include "NetwPkt_m.h"
-#include "Prophet_Msg_Enum.h"
-
-using namespace std;
+#include <bitset>
+#include <map>
+#include "SimpleAddress.h"
+#include "Prophet_Enum.h"
+typedef std::map<LAddress::L3Type, double> predictions;
 }}
 packet NetwPkt;
+
+enum t_result_field;
+enum t_tlv_type;
+class noncobject predictions;
 //
 // TODO generated message class
 //
 packet Prophet extends NetwPkt {
-    int someField;
+    int result_Field @enum(t_result_field);
+    int identifier;
+   	int tlv_Type @enum(t_tlv_type);
+    int tlv_Flags;
+    predictions preds;
 }
