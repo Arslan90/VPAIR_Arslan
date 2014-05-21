@@ -27,7 +27,7 @@
 #include "BaseNetwLayer.h"
 #include "ProphetV2.h"
 #include <map>
-#include <queue>
+#include <list>
 #include <iterator>
 #include <math.h>
 #include "WaveShortMessage_m.h"
@@ -41,6 +41,33 @@
 typedef std::map<LAddress::L3Type, double>::iterator map_it;
 
 class ProphetV2: public BaseNetwLayer {
+protected:
+
+	/**
+	 * Enumeration for Forwarding strategy defined by RFC 6693
+	 */
+	enum t_prophet_forward {
+		FWD_GRTR	=1,
+		FWD_GTMX	=2,
+		FWD_GTHR	=3,
+		FWD_GRTRplus=4,
+		FWD_GTMXplus=5,
+		FWD_GRTRsort=6,
+		FWD_GRTRmax	=7,
+	};
+
+	/**
+	 * Enumeration for Queuing strategy defined by RFC 6693
+	 */
+	enum t_prophet_queuing {
+		QUEUING_FIFO=1,
+		QUEUING_MOFO,
+		QUEUING_MOPR,
+		QUEUING_LinearMOPR,
+		QUEUING_SHLI,
+		QUEUING_LEPR,
+	};
+
 private:
 	/** delivery predictability initialization constant*/
 	double PEncMax;
@@ -51,6 +78,9 @@ private:
 	/** delivery predictability aging constant */
 	double GAMMA;
 
+	t_prophet_forward fwdStrategy;
+
+	t_prophet_queuing qStrategy;
 	/**
 	 * Number of seconds in time unit
 	 * How many seconds one time unit is when calculating aging of
@@ -69,7 +99,14 @@ private:
 	double lastAgeUpdate;
 
 	/** Fifo structure for WMS Storage*/
-	std::queue<WaveShortMessage*> Bundles;
+	std::list<WaveShortMessage*> bundles;
+
+	/** Specific map with K as recipient address of WSMessage &
+	 * V as a pointer to WSMessage.
+	 * This structure simplify the search of WSMessage destinated
+	 * to a specific node
+	 * */
+	std::multimap<LAddress::L3Type, WaveShortMessage*> mapsForBundles;
 
 	/** Function for calculating P(A,B)*/
 	void updateDeliveryPredsFor(const LAddress::L3Type BAdress);
@@ -112,33 +149,18 @@ private:
 //
 //	virtual cObject *const setUpControlInfo(cMessage *const pMsg, const LAddress::L3Type& pSrcAddr);
 public:
+	enum Prophetv2MessageKinds {
+		HELLO = 0x00,
+		ERROR = 0x01,
+		RIBD  = 0x02,
+		RIB   = 0x03,
+		Bundle_Offer = 0xA4,
+		Bundle_Response = 0xA5,
+		Bundle = 0xFF,
+	};
 	virtual void initialize(int stage);
 	virtual void finish();
-protected:
-	/**
-	 * Enumeration for Queuing strategy defined by RFC 6693
-	 */
-	enum t_prophet_queuing {
-		QUEUING_FIFO=1,
-		QUEUING_MOFO,
-		QUEUING_MOPR,
-		QUEUING_LinearMOPR,
-		QUEUING_SHLI,
-		QUEUING_LEPR,
-	};
-
-	/**
-	 * Enumeration for Forwarding strategy defined by RFC 6693
-	 */
-	enum t_prophet_forward {
-		FWD_GRTR=1,
-		FWD_GTMX,
-		FWD_GTHR,
-		FWD_GRTRplus,
-		FWD_GTMXplus,
-		FWD_GRTRsort,
-		FWD_GRTRmax,
-	};
+	virtual ~ProphetV2();
 };
 
 #endif /* PROPHETV2_H_ */

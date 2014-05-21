@@ -27,6 +27,10 @@ void ProphetV2::initialize(int stage)
 		Beta = par("Beta").doubleValue();
 		GAMMA = par("GAMMA").doubleValue();
 		secondsInTimeUnit = par("secondsInTimeUnit");
+		int fwd = par("fwdStrategy");
+		fwdStrategy = static_cast<t_prophet_forward>(fwd);
+		int q = par("qStrategy");
+		qStrategy = static_cast<t_prophet_queuing>(q);
 		/*
 		 * L3Address will be initialized by BaseNetwLayer::initialize(1);
 		 */
@@ -34,6 +38,8 @@ void ProphetV2::initialize(int stage)
 		lastAgeUpdate = 0;
 		preds = std::map<LAddress::L3Type,double>();
 		lastEncouterTime = std::map<LAddress::L3Type,double>();
+		bundles = std::list<WaveShortMessage*>();
+		mapsForBundles = std::multimap<LAddress::L3Type,WaveShortMessage*>();
 	}
 }
 void ProphetV2::updateDeliveryPredsFor(const LAddress::L3Type BAdress)
@@ -237,3 +243,9 @@ void ProphetV2::finish()
 {
 
 }
+
+ProphetV2::~ProphetV2()
+{
+}
+
+

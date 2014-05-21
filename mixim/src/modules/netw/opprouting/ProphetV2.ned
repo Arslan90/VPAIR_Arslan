@@ -31,4 +31,6 @@ simple ProphetV2 extends BaseNetwLayer
     	double GAMMA=default(0.999885791);
 //    	int secondsInTimeUnit @unit("s")=default(30s);
     	int secondsInTimeUnit =default(30);
+    	int fwdStrategy =default(7);
+    	int qStrategy = default(1);
 }

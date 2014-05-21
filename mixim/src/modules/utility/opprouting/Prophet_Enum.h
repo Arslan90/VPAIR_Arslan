@@ -58,12 +58,15 @@ enum t_flags_More_TLV {
 	At_Least_One_More_TLV = 01,
 };
 
-enum t_b_flags {
-	Bndl_Accepted = 0,
-	Bndl_is_a_Fragment = 1,
-	Bndl_Payload_Length_Included = 2,
-	PRoPHET_ACK = 7,
+namespace bndlFlags {
+	typedef enum {
+		Bndl_Accepted = 0,
+		Bndl_is_a_Fragment = 1,
+		Bndl_Payload_Length_Included = 2,
+		PRoPHET_ACK = 7,
+	}t_b_flags;
 };
+
 
 enum t_result_field {
 	NoSuccessACK = 0x01,
