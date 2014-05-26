@@ -37,6 +37,8 @@
 #include "ArpInterface.h"
 #include "SimpleAddress.h"
 #include "Prophet_Enum.h"
+#include "cmodule.h"
+#include "ConnectionManager.h"
 
 typedef std::map<LAddress::L3Type, double>::iterator map_it;
 
@@ -149,6 +151,12 @@ private:
 //
 //	virtual cObject *const setUpControlInfo(cMessage *const pMsg, const LAddress::L3Type& pSrcAddr);
 public:
+	/**
+	 * @brief The message kinds used by PRoPHETv2 as implemented.
+	 * Defined as described in RFC 6693,
+	 * the only difference is the Bundle Enum that is not defined in RFC
+	 * it value is taken from Experimental values (bounded between 0xD0 & 0xFF)
+	 */
 	enum Prophetv2MessageKinds {
 		HELLO = 0x00,
 		ERROR = 0x01,

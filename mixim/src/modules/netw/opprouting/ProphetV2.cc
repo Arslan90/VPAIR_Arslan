@@ -125,7 +125,6 @@ void ProphetV2::updateTransitivePreds(const LAddress::L3Type BAdress, std::map<L
 void ProphetV2::ageDeliveryPreds()
 {
 	double timeDiff = (simTime().dbl()-lastAgeUpdate)/secondsInTimeUnit;
-
 	if (timeDiff==0){
 		return;
 	}else {
@@ -143,6 +142,20 @@ void ProphetV2::update()
 
 void ProphetV2::canITransmit()
 {
+	ConnectionManager *cM = NULL;
+	cModule *cc = this->getParentModule();
+	cModule *nic = NULL;
+	if (cc!=NULL){
+			nic = cc->getSubmodule("nic");
+	}
+	while (cc->getParentModule()!=NULL){
+		cc = cc->getParentModule();
+	}
+	cM = (ConnectionManager *)(cc);
+	if (nic!=NULL){
+		cM->getGateList(nic->getId());
+	}
+
 }
 
 cMessage* ProphetV2::decapsMsg(NetwPkt *msg)
@@ -195,6 +208,7 @@ NetwPkt* ProphetV2::encapsMsg(cPacket *appPkt)
 	//encapsulate the application packet
 	pkt->encapsulate(appPkt);
 	coreEV <<" pkt encapsulated\n";
+	canITransmit();
 	return pkt;
 }
 

@@ -26,7 +26,6 @@ typedef std::vector<bndl_meta> bndlMeta;
 packet NetwPkt;
 
 enum t_result_field;
-enum t_tlv_type;
 class noncobject predictions;
 struct bndl_meta;
 class noncobject bndlMeta;
@@ -36,7 +35,6 @@ class noncobject bndlMeta;
 packet Prophet extends NetwPkt {
     int result_Field @enum(t_result_field);
     int identifier;
-   	int tlv_Type @enum(t_tlv_type);
     int tlv_Flags;
     predictions preds = std::map<LAddress::L3Type, double>();
     bndlMeta bndlInfo = std::vector<bndl_meta>();
