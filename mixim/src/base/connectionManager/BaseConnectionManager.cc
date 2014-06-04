@@ -119,7 +119,8 @@ void BaseConnectionManager::initialize(int stage)
 	}
 	else if (stage == 1)
 	{
-
+		connection = registerSignal("Connect");
+		disconnect = registerSignal("Disconnect");
 	}
 }
 
@@ -256,6 +257,7 @@ bool BaseConnectionManager::isInRange(BaseConnectionManager::NicEntries::mapped_
 void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectionManager::NicEntries::mapped_type   nic)
 {
     int id = nic->nicId;
+    std::ostringstream ss;
 
     for(NicEntries::iterator i = nmap.begin(); i != nmap.end(); ++i) {
     	NicEntries::mapped_type nic_i = i->second;
@@ -273,6 +275,12 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
             	 << " are in range" << endl;
             nic->connectTo( nic_i );
             nic_i->connectTo( nic );
+
+            ss << id << " : " << nic_i->nicId;
+            std::string s = ss.str();
+            const char *connectSignalVal = s.c_str();
+
+            emit(connection,connectSignalVal );
         }
         else if ( !inRange && connected ) {
             // out of range: disconnect
@@ -281,6 +289,12 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
             	 << " are NOT in range" << endl;
             nic->disconnectFrom( nic_i );
             nic_i->disconnectFrom( nic );
+
+            ss << id << " : " << nic_i->nicId;
+            std::string s = ss.str();
+            const char *disconnectSignalVal = s.c_str();
+
+			emit(disconnect,disconnectSignalVal );
         }
     }
 }

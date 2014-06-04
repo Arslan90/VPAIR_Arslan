@@ -39,6 +39,7 @@
 #include "Prophet_Enum.h"
 #include "cmodule.h"
 #include "ConnectionManager.h"
+#include "NeighborhoodManager.h"
 
 typedef std::map<LAddress::L3Type, double>::iterator map_it;
 
@@ -71,6 +72,10 @@ protected:
 	};
 
 private:
+	/**
+	 * Listener and manager for neighborhood subclassed from cListener
+	 */
+	NeighborhoodManager* listener;
 	/** delivery predictability initialization constant*/
 	double PEncMax;
 	/** typical interconnection time in seconds*/
@@ -124,7 +129,10 @@ private:
 	void update();
 
 	/** Function to verify if the transmission will not fail*/
-	void canITransmit();
+	bool canITransmit();
+
+	/** Function that return nic of the current node*/
+	cModule* getThisNic();
 
 	/** @brief Handle messages from upper layer */
 	virtual void handleUpperMsg(cMessage* msg);
@@ -169,6 +177,8 @@ public:
 	virtual void initialize(int stage);
 	virtual void finish();
 	virtual ~ProphetV2();
+	/** Function to resume sending bundles, after a disconnection */
+	void resumeConnection ();
 };
 
 #endif /* PROPHETV2_H_ */

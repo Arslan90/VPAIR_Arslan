@@ -40,6 +40,14 @@ void ProphetV2::initialize(int stage)
 		lastEncouterTime = std::map<LAddress::L3Type,double>();
 		bundles = std::list<WaveShortMessage*>();
 		mapsForBundles = std::multimap<LAddress::L3Type,WaveShortMessage*>();
+		int tmp = getThisNic()->getId();
+//		listener = new NeighborhoodManager(this,tmp);
+		listener = new NeighborhoodManager(this, tmp);
+	}
+	else if (stage==1){
+		listener->setSrcAdresse(myNetwAddr);
+		simulation.getSystemModule()->subscribe("Connect", listener);
+		simulation.getSystemModule()->subscribe("Disconnect", listener);
 	}
 }
 void ProphetV2::updateDeliveryPredsFor(const LAddress::L3Type BAdress)
@@ -140,23 +148,37 @@ void ProphetV2::update()
 {
 }
 
-void ProphetV2::canITransmit()
+
+
+bool ProphetV2::canITransmit()
 {
-	ConnectionManager *cM = NULL;
+//	if (listener->)
+	return listener->isAnyNeighbor();
+	//	cIListener *listener = new cListener();
+
+	//
+
+	//	while (cc->getParentModule()!=NULL){
+	//		cc = cc->getParentModule();
+	//	}
+	//	ConnectionManager *cM = NULL;
+	//	cM = (ConnectionManager *)(cc);
+	//	if (nic!=NULL){
+	//		cM->getGateList(nic->getId());
+	//	}
+
+}
+cModule* ProphetV2::getThisNic(){
+
 	cModule *cc = this->getParentModule();
 	cModule *nic = NULL;
 	if (cc!=NULL){
 			nic = cc->getSubmodule("nic");
 	}
-	while (cc->getParentModule()!=NULL){
-		cc = cc->getParentModule();
-	}
-	cM = (ConnectionManager *)(cc);
-	if (nic!=NULL){
-		cM->getGateList(nic->getId());
-	}
-
+	return nic;
 }
+
+
 
 cMessage* ProphetV2::decapsMsg(NetwPkt *msg)
 {
@@ -208,7 +230,6 @@ NetwPkt* ProphetV2::encapsMsg(cPacket *appPkt)
 	//encapsulate the application packet
 	pkt->encapsulate(appPkt);
 	coreEV <<" pkt encapsulated\n";
-	canITransmit();
 	return pkt;
 }
 
@@ -223,7 +244,35 @@ void ProphetV2::handleLowerMsg(cMessage* msg)
 void ProphetV2::handleUpperMsg(cMessage* msg)
 {
 	assert(dynamic_cast<WaveShortMessage*>(msg));
-	sendDown(encapsMsg(static_cast<WaveShortMessage*>(msg)));
+	WaveShortMessage* tmp = static_cast<WaveShortMessage*>(msg);
+	std::multimap<LAddress::L3Type, WaveShortMessage*>::iterator it;
+	/**
+	 * part of code to verify if the msg exist currently in data structures that store bundles and metadata
+	 */
+	if (mapsForBundles.count(tmp->getRecipientAddress())==0){
+		bundles.push_back(static_cast<WaveShortMessage*>(msg));
+		mapsForBundles.insert(std::pair<LAddress::L3Type, WaveShortMessage*>(tmp->getRecipientAddress(),tmp));
+	}
+	if (mapsForBundles.count(tmp->getRecipientAddress())>0){
+		bool exist = false;
+		for (it = mapsForBundles.lower_bound(tmp->getRecipientAddress()); it != mapsForBundles.upper_bound(tmp->getRecipientAddress()); ++it){
+				if (it->second == tmp){
+					exist = true;
+					break;
+				}
+		}
+		if (!exist){
+			bundles.push_back(static_cast<WaveShortMessage*>(msg));
+			mapsForBundles.insert(std::pair<LAddress::L3Type, WaveShortMessage*>(tmp->getRecipientAddress(),tmp));
+		}
+	}
+
+
+
+	if (canITransmit()){
+		WaveShortMessage* copy = tmp->dup();
+		sendDown(encapsMsg(copy));
+	}
 //    sendDown(msg);
 }
 
@@ -255,6 +304,17 @@ void ProphetV2::handleSelfMsg(cMessage* msg)
 
 void ProphetV2::finish()
 {
+
+}
+
+void ProphetV2::resumeConnection()
+{
+	if (!bundles.empty()){
+	std::list<WaveShortMessage*>::iterator it;
+		for (it = bundles.begin();it != bundles.end();++it){
+			handleUpperMsg(*it);
+		}
+	}
 
 }
 

@@ -4,6 +4,14 @@
 #include "MiXiMDefs.h"
 #include "NicEntry.h"
 
+/*
+ * by arslan
+ */
+#include <iostream>
+#include <sstream>
+#include <string>
+#include "ccomponent.h"
+
 class ChannelAccess;
 
 /**
@@ -195,6 +203,15 @@ private:
 	};
 
 protected:
+	/**
+	 * Signals created by me, used to notify the node of connected neighbor
+	 */
+	simsignal_t connection;
+
+	/**
+	 * Signals created by me, used to notify the node of a disconnected neighbor
+	*/
+	simsignal_t disconnect;
 	/** @brief Type for map from nic-module id to nic-module pointer.*/
 	typedef std::map<int, NicEntry*> NicEntries;
 
