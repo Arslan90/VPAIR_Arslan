@@ -46,5 +46,7 @@ typedef struct prophet_tlv {
 //	std::list<Tlv_Data> tlv_Data;
 };
 
+//// test area
+//typedef std::map<LAddress::L3Type, double> preds;
 
 #endif /* PROPHET_MSG_STRUCT_H_ */

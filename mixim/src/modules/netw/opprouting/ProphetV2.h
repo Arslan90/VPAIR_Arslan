@@ -18,29 +18,31 @@
 
 #ifndef PROPHETV2_H_
 #define PROPHETV2_H_
-/**
- * iterator for std::map<LAddress::L3Type, double>
- */
 #include <cassert>
 
 #include <cobject.h>
 #include "BaseNetwLayer.h"
 #include "ProphetV2.h"
+#include <iostream>
 #include <map>
 #include <list>
 #include <iterator>
 #include <math.h>
+//#include "../../messages/WaveShortMessage_m.h"
 #include "WaveShortMessage_m.h"
 #include "NetwPkt_m.h"
 #include "cmessage.h"
 #include "NetwControlInfo.h"
 #include "ArpInterface.h"
 #include "SimpleAddress.h"
-#include "Prophet_Enum.h"
+#include "Mac1609_4_opp.h"
+#include "../../utility/opprouting/Prophet_Enum.h"
 #include "cmodule.h"
 #include "ConnectionManager.h"
+#include "../../messages/opprouting/Prophet_m.h"
 
 typedef std::map<LAddress::L3Type, double>::iterator map_it;
+typedef std::multimap<LAddress::L3Type, WaveShortMessage*>::iterator multimap_it;
 
 class ProphetV2: public BaseNetwLayer {
 protected:
@@ -110,12 +112,15 @@ private:
 	 * */
 	std::multimap<LAddress::L3Type, WaveShortMessage*> mapsForBundles;
 
+	/** Boolean to verify if the transmission will not fail*/
+	bool canITransmit;
+
 	/** Function for calculating P(A,B)*/
 	void updateDeliveryPredsFor(const LAddress::L3Type BAdress);
 
 	/** Function for calculating P(A,C) with P(A,B) & P(B,C)*/
 	void updateTransitivePreds(const LAddress::L3Type BAdress,
-			std::map<LAddress::L3Type, double> *Bpreds);
+			std::map<LAddress::L3Type, double> Bpreds);
 
 	/** Function for aging P(A,B)*/
 	void ageDeliveryPreds();
@@ -123,8 +128,18 @@ private:
 	/** Function for updating & exchanging probabilities*/
 	void update();
 
-	/** Function to verify if the transmission will not fail*/
-	void canITransmit();
+//	/** Function to verify if the transmission will not fail*/
+//	void canITransmit();
+
+	void resumeConnection();
+
+	void executeInitiatorRole(short  kind, Prophet *prophetPkt = NULL);
+
+	void executeListenerRole(short  kind, Prophet *prophetPkt = NULL);
+
+	bool existingBundle(WaveShortMessage *msg);
+
+	void storeBundle(WaveShortMessage *msg);
 
 	/** @brief Handle messages from upper layer */
 	virtual void handleUpperMsg(cMessage* msg);
@@ -135,8 +150,8 @@ private:
 	/** @brief Handle self messages */
 	virtual void handleSelfMsg(cMessage* msg);
 
-//	/** @brief Handle control messages from lower layer */
-//	virtual void handleLowerControl(cMessage* msg);
+	/** @brief Handle control messages from lower layer */
+	virtual void handleLowerControl(cMessage* msg);
 //
 //	/** @brief Handle control messages from lower layer */
 //	virtual void handleUpperControl(cMessage* msg);
@@ -146,6 +161,7 @@ private:
 
 	/** @brief Encapsulate higher layer packet into an NetwPkt*/
 	virtual NetwPkt* encapsMsg(cPacket*);
+
 
 //	virtual cObject *const setDownControlInfo(cMessage *const pMsg, const LAddress::L2Type& pDestAddr);
 //
@@ -160,11 +176,19 @@ public:
 	enum Prophetv2MessageKinds {
 		HELLO = 0x00,
 		ERROR = 0x01,
-		RIBD  = 0x02,
-		RIB   = 0x03,
+		RIBD  = 0xA0,
+		RIB   = 0xA1,
 		Bundle_Offer = 0xA4,
 		Bundle_Response = 0xA5,
 		Bundle = 0xFF,
+	};
+	/**
+	 * @brief Prophet Control Kinds used when notified by the lower layer (i.e Mac1609_4_Opp & NicEntryDebug)
+	 */
+	enum prophetNetwControlKinds {
+		NEWLY_CONNECTED = LAST_BASE_NETW_CONTROL_KIND,
+		NEW_NEIGHBOR = NEWLY_CONNECTED + 10,
+		NO_NEIGHBOR_AND_DISCONNECTED = NEWLY_CONNECTED + 20,
 	};
 	virtual void initialize(int stage);
 	virtual void finish();

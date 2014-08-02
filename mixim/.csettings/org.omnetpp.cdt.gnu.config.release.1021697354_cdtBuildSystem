@@ -8,6 +8,9 @@
 					<builder id="org.omnetpp.cdt.gnu.builder.release.1123304671" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="OMNeT++ Make Builder (opp_makemake)" superClass="org.omnetpp.cdt.gnu.builder.release"/>
 					<tool id="cdt.managedbuild.tool.gnu.archiver.base.1766233812" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 					<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.7659449" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+						<option id="gnu.cpp.compiler.option.include.paths.2000603347" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<listOptionValue builtIn="false" value="/home/arslan/Bureau/Doctorat/SIM_Tools_Arslan/omnetpp-4.2/include/"/>
+						</option>
 						<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.793944766" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 					</tool>
 					<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.800196717" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">

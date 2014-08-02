@@ -33,18 +33,22 @@
 #include <omnetpp.h>
 #include <queue>
 #include <BaseLayer.h>
-#include <Mac80211pToPhy11pInterface.h>
-#include <Mac1609_4To80211pControlInfo.h>
+//#include <Mac80211pToPhy11pInterface.h>
+#include "../ieee80211p/Mac80211pToPhy11pInterface.h"
+#include "../ieee80211p/Mac1609_4To80211pControlInfo.h"
 #include <MacToPhyInterface.h>
 #include <NetwToMacControlInfo.h>
-#include <Mac80211pToPhy11pInterface.h>
-#include <Mac80211pToMac1609_4Interface.h>
-#include <WaveAppToMac1609_4Interface.h>
-#include <Consts80211p.h>
+//#include <Mac80211pToPhy11pInterface.h>
+#include "../ieee80211p/Mac80211pToMac1609_4Interface.h"
+#include "../ieee80211p/WaveAppToMac1609_4Interface.h"
+//#include <Consts80211p.h>
+#include "../../utility/Consts80211p.h"
 #include "FindModule.h"
-#include <Mac80211Pkt_m.h>
+//#include <Mac80211Pkt_m.h>
+#include "../../messages/Mac80211Pkt_m.h"
 #include "cmessage.h"
-#include <WaveShortMessage_m.h>
+//#include <WaveShortMessage_m.h>
+#include "../../messages/WaveShortMessage_m.h"
 #include "NetwPkt_m.h"
 
 #ifndef DBG
@@ -59,6 +63,8 @@ class Mac1609_4_opp :	public BaseLayer,
 		~Mac1609_4_opp() { };
 
 		void changeServiceChannel(int channelNumber);
+
+		void neighborhoodNotifier(short controlKind);
 
 	protected:
 		/** @brief States of the channel selecting operation.*/

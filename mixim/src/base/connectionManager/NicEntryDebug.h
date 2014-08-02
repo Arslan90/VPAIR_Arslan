@@ -23,9 +23,12 @@
 #define NICENTRYDEBUG_H
 
 #include "NicEntry.h"
+//#include "ProphetV2.h"
+#include "../../modules/netw/opprouting/ProphetV2.h"
 
 #include <map>
 #include <vector>
+
 
 /**
  * @brief NicEntry is used by ConnectionManager to store the necessary
@@ -138,6 +141,12 @@ class NicEntryDebug: public NicEntry
 	 * @param other reference to remote nic (other NicEntry)
 	 **/
     virtual void disconnectFrom(NicEntry* other);
+
+    /**
+     * @brief Function used to send a notification from Mac1609_4 layer to Prophet Layer, the current Nic
+     * can detect if this node is connected, disconnected or has a new neighbor
+     */
+    void prepareControlMsg(short controlKind);
 };
 
 #endif

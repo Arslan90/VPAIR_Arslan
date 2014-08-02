@@ -318,6 +318,9 @@ bool BaseConnectionManager::registerNic(cModule* nic,
 
 	if(drawMIR) {
 		nic->getParentModule()->getDisplayString().setTagArg("r", 0, maxInterferenceDistance);
+//		double test = maxInterferenceDistance/(double(gridDim.x+gridDim.y)/2);
+//		nic->getParentModule()->getDisplayString().setTagArg("r", 0, test);
+//		nic->getParentModule()->getDisplayString().setTagArg("r", 0, 450);
 	}
 
 	return sendDirect;

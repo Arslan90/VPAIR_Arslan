@@ -27,7 +27,8 @@
  */
 
 #include <NetwToMacControlInfo.h>
-#include <Consts80211p.h>
+//#include <Consts80211p.h>
+#include "../../utility/Consts80211p.h"
 
 #ifndef ___WAVEAPPTOMAC1609_4INTERFACE_H_
 #define ___WAVEAPPTOMAC1609_4INTERFACE_H_

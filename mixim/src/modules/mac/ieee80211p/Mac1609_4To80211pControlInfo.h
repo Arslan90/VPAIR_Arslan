@@ -28,7 +28,9 @@
  */
 
 #include <NetwToMacControlInfo.h>
-#include <Consts80211p.h>
+//#include <Consts80211p.h>
+#include "../../utility/Consts80211p.h"
+
 
 #ifndef ___MAC1609_4TO80211PCONTROLINFO_H_
 #define ___MAC1609_4TO80211PCONTROLINFO_H_

@@ -20,6 +20,7 @@ cplusplus {{
 #include "SimpleAddress.h"
 #include "Prophet_Enum.h"
 #include "Prophet_Struct.h"
+//typedef Prophet_Struct::preds preds;
 typedef std::map<LAddress::L3Type, double> predictions;
 typedef std::vector<bndl_meta> bndlMeta;
 }}
@@ -27,6 +28,7 @@ packet NetwPkt;
 
 enum t_result_field;
 class noncobject predictions;
+//class noncobject preds;
 struct bndl_meta;
 class noncobject bndlMeta;
 //
@@ -37,5 +39,6 @@ packet Prophet extends NetwPkt {
     int identifier;
     int tlv_Flags;
     predictions preds = std::map<LAddress::L3Type, double>();
+//    preds predictions = std::map<LAddress::L3Type, double>();
     bndlMeta bndlInfo = std::vector<bndl_meta>();
 }

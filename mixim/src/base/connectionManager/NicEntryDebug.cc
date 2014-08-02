@@ -25,6 +25,8 @@
 
 #include "ChannelAccess.h"
 #include "FindModule.h"
+#include <../../modules/mac/opprouting/Mac1609_4_opp.h>
+
 
 #ifndef nicEV
 #define nicEV (ev.isDisabled()||!coreDebug) ? ev : ev << "NicEntry: "
@@ -33,6 +35,20 @@
 using std::endl;
 
 void NicEntryDebug::connectTo(NicEntry* other) {
+	// if no older neighbor, then this is a first connection
+	if (!existingNeighborhood()){
+		prepareControlMsg(ProphetV2::NEWLY_CONNECTED);
+	}
+//	if (!existingNeighborhood()){
+//		if (nicPtr->findSubmodule("mac1609_4_opp")!=-1){
+//			cModule* module = nicPtr->getSubmodule("mac1609_4_opp");
+//			if (module !=NULL){
+//				Mac1609_4_opp *mac = check_and_cast<Mac1609_4_opp*>(module);
+//				mac->neighborhoodNotifier("connection");
+//			}
+//		}
+//	}
+
 	nicEV<<"connecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
 
 	NicEntryDebug* otherNic = (NicEntryDebug*) other;
@@ -40,6 +56,8 @@ void NicEntryDebug::connectTo(NicEntry* other) {
 	cGate *localoutgate = requestOutGate();
 	localoutgate->connectTo(otherNic->requestInGate());
 	outConns[other] = localoutgate->getPathStartGate();
+	// for each new neighbor, we have to start a new prophet information exchange
+	prepareControlMsg(ProphetV2::NEW_NEIGHBOR);
 }
 
 
@@ -67,6 +85,25 @@ void NicEntryDebug::disconnectFrom(NicEntry* other) {
 
 	//delete the connection
 	outConns.erase(p);
+
+//	if (!existingNeighborhood()){
+//		if (nicPtr->findSubmodule("mac1609_4_opp")!=-1){
+//			cModule* module = nicPtr->getSubmodule("mac1609_4_opp");
+//			if (module !=NULL){
+//				Mac1609_4_opp *mac = check_and_cast<Mac1609_4_opp*>(module);
+//				mac->neighborhoodNotifier("disconnection");
+//			}
+//		}
+//	}
+
+	/*
+	 * *after deleting the connection, we check if there is no current neighbor
+	 * if it the case we have to send a control message to notify the newt layer
+	 */
+	if (!existingNeighborhood()){
+		prepareControlMsg(ProphetV2::NO_NEIGHBOR_AND_DISCONNECTED);
+	}
+
 }
 
 int NicEntryDebug::collectGates(const char* pattern, GateStack& gates)
@@ -217,3 +254,16 @@ cGate* NicEntryDebug::requestOutGate(void) {
 
 	return hostGate;
 }
+
+void NicEntryDebug::prepareControlMsg(short controlKind)
+{
+	if (nicPtr->findSubmodule("mac1609_4_opp")!=-1){
+		cModule* module = nicPtr->getSubmodule("mac1609_4_opp");
+		if (module !=NULL){
+			Mac1609_4_opp *mac = check_and_cast<Mac1609_4_opp*>(module);
+			mac->neighborhoodNotifier(controlKind);
+		}
+	}
+}
+
+

@@ -105,18 +105,28 @@ void Mac1609_4_opp::handleSelfMsg(cMessage* msg) {
 	}
 }
 
+void Mac1609_4_opp::neighborhoodNotifier(short controlKind)
+{
+	Enter_Method("neighborhoodNotifier()");
+	cMessage *msg = new cMessage();
+	msg->setKind(controlKind);
+	sendControlUp(msg);
+}
+
 void Mac1609_4_opp::attachAndSend(cMessage* msg, ChannelSelectorState channel, t_channel channelType, double frequency) {
 	lastPacketCameFrom = channel;
 
 	// msg is NetwPkt now, then i must get the WaveShortMessage that it encapsulate
 	NetwPkt *m = static_cast<NetwPkt*>(msg);
 
-	int priority = (dynamic_cast<WaveShortMessage*>(m->getEncapsulatedPacket()))->getPriority();
-	ASSERT(priority <= 3 && priority >= 0);
+//	int priority = (dynamic_cast<WaveShortMessage*>(m->getEncapsulatedPacket()))->getPriority();
+	int priority;
+	(m->getEncapsulatedPacket()!=NULL) ? priority = (dynamic_cast<WaveShortMessage*>(m->getEncapsulatedPacket()))->getPriority() : priority = 0;
 
-	Mac1609_4To80211pControlInfo* addInfo = new Mac1609_4To80211pControlInfo(-1, priority, frequency, channelType);
-
-	Mac80211Pkt* pkt = new Mac80211Pkt("MacPkt including WSA");
+	Mac1609_4To80211pControlInfo* addInfo = new Mac1609_4To80211pControlInfo(-1, 0, frequency, channelType);
+//	Mac80211Pkt* pkt = new Mac80211Pkt("MacPkt including WSA");
+	Mac80211Pkt* pkt;
+	(m->getEncapsulatedPacket()!=NULL) ? pkt = new Mac80211Pkt("MacPkt including WSA") : pkt = new Mac80211Pkt("MacPkt including Prophet MSG");;
 	pkt->setControlInfo(addInfo);
 	pkt->addBitLength(headerLength);
 	pkt->encapsulate(dynamic_cast<NetwPkt*>(msg->dup()));
@@ -131,7 +141,7 @@ void Mac1609_4_opp::handleUpperControl(cMessage* msg) {
 void Mac1609_4_opp::handleUpperMsg(cMessage* msg) {
 
 	// msg is NetwPkt now, then i must get the WaveShortMessage that it encapsulate
-	NetwPkt *m = static_cast<NetwPkt*>(msg);
+	NetwPkt *m = check_and_cast<NetwPkt*>(msg);
 
 	WaveShortMessage* thisMsg;
 	if ((thisMsg = dynamic_cast<WaveShortMessage*>(m->getEncapsulatedPacket())) != NULL) {
@@ -167,6 +177,20 @@ void Mac1609_4_opp::handleUpperMsg(cMessage* msg) {
 				//Queue this packet because SCH is not active or Queue is not empty
 				schQueue.push(msg);
 			}
+		}
+	}else {
+		DBG << "Received a message from upper layer of type"
+				    << m->getKind() << " that don't contain a WSM message,"
+				    << " the message will be sent with CCH channel"<< std::endl;
+		if ((csState == CCH) && (cchQueue.empty())) {
+						//Send this CCH packet right away
+						cchQueue.push(m);
+						attachAndSend(m,CCH, type_CCH, frequency[Channels::CCH]);
+
+		}
+		else {
+			//Queue this packet because CCH is not active or Queue is not empty
+			cchQueue.push(m);
 		}
 	}
 }

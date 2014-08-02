@@ -122,6 +122,14 @@ protected:
     	return outConns[to];
     };
 
+    bool existingNeighborhood(){
+    	if (outConns.size()==0){
+    		return false;
+    	}else if (outConns.size()>=0){
+    		return true;
+    	}
+    }
+
 };
 
 #endif
